@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 12:23:09 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 17:43:46 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:56:36 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void
 init_history(t_hist *history)
 {
 	history->cmd = NULL;
-	history->current = NULL;
+	history->curr = NULL;
 	history->end = NULL;
 	history->next = NULL;
 	history->prev = NULL;

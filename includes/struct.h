@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/18 16:05:20 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 17:43:59 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:56:36 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ typedef	struct	s_hist
 	struct s_hist	*next;
 	struct s_hist	*prev;
 	struct s_hist	*end;
-	struct s_hist	*current;
+	struct s_hist	*curr;
 	char			*cmd;
 }				t_hist;
 

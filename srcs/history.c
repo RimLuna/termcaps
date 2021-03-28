@@ -142,15 +142,15 @@ void
 hist_down(t_readline *data, t_hist *history)
 {
 	clear_line();
-	if (!history->current || !history->current->cmd)
-		history->current = history;
-	else if (history->current->cmd)
-		history->current = history->current->next;
-	if (history->current && history->current->cmd)
+	if (!history->curr || !history->curr->cmd)
+		history->curr = history;
+	else if (history->curr->cmd)
+		history->curr = history->curr->next;
+	if (history->curr && history->curr->cmd)
 	{
 		ft_bzero(data->line, ft_strlen(data->line));
 		free(data->line);
-		data->line = ft_strdup(history->current->cmd);
+		data->line = ft_strdup(history->curr->cmd);
 	}
 	else
 		ft_bzero(data->line, ft_strlen(data->line));
@@ -159,16 +159,19 @@ hist_down(t_readline *data, t_hist *history)
 void
 hist_up(t_readline *data, t_hist *history)
 {
+	t_hist *head;
+
+	head = history;
 	clear_line();
-	if (!history->current || !history->current->cmd)
-		history->current = history->end;
-	else if (history->current->cmd)
-		history->current = history->current->prev;
-	if (history->current && history->current->cmd)
+	if (!history->curr || !history->curr->cmd)
+		history->curr = history->end;
+	else if (history->curr->cmd)
+		history->curr = history->curr->prev;
+	if (history->curr && history->curr->cmd)
 	{
-		write(1, history->current->cmd, ft_strlen(history->current->cmd));
+		write(1, history->curr->cmd, ft_strlen(history->curr->cmd));
 		free(data->line);
-		data->line = ft_strdup(history->current->cmd);
+		data->line = ft_strdup(history->curr->cmd);
 	}
 	else
 		ft_bzero(data->line, ft_strlen(data->line));
