@@ -116,42 +116,6 @@ append(t_readline *data)
 }
 
 void
-go_up(t_readline *data, t_hist *history)
-{
-	clear_line();
-	if (!history->current || !history->current->cmd)
-	{
-		history->current = history;
-	}
-	else if (history->current->cmd)
-	{
-		history->current = history->current->next;
-	}
-	if (history->current && history->current->cmd)
-	{
-		ft_putstr_fd(history->current->cmd, 1);
-	}
-}
-
-void
-go_down(t_readline *data, t_hist *history)
-{
-	clear_line();
-	if (!history->current || !history->current->cmd)
-	{
-		history->current = history->end;
-	}
-	else if (history->current->cmd)
-	{
-		history->current = history->current->prev;
-	}
-	if (history->current && history->current->cmd)
-	{
-		ft_putstr_fd(history->current->cmd, 1);
-	}
-}
-
-void
 history_add(t_hist *history, char *line)
 {
 	if (!history->cmd)
@@ -176,13 +140,13 @@ history_add(t_hist *history, char *line)
 }
 
 void
-history_show(t_hist *head)
+print_hist(t_hist *head)
 {
 	t_hist *tmp;
 	if (!head->cmd)
 		return ;
 	tmp = head;
-	printf("\n\nHistory:\n");
+	printf("\n\nHIST:\n\n");
 	while (tmp)
 	{
 		printf("%s\n", tmp->cmd);
@@ -202,48 +166,22 @@ history_init(t_hist *history)
 }
 
 void
-input_init(t_readline *data)
-{
-	data->line = NULL;
-}
-
-void
-handle_arrows(t_readline *data, t_hist *history)
-{
-	if (data->input[0] == 65)
-		exit(0);
-}
-
-int
-line_valid(char *line)
-{
-	int x;
-
-	x = -1;
-	while (line[++x])
-	{
-		if (!(ft_isblank(line[x])))
-			return (1);
-	}
-	return (0);
-}
-
-void
 hist_down(t_readline *data, t_hist *history)
 {
 	clear_line();
 	if (!history->current || !history->current->cmd)
-		history->current = history->end;
+		history->current = history;
 	else if (history->current->cmd)
-		history->current = history->current->prev;
+		history->current = history->current->next;
 	if (history->current && history->current->cmd)
 	{
-		write(1, history->current->cmd, ft_strlen(history->current->cmd));
 		ft_bzero(data->line, ft_strlen(data->line));
+		write(1, history->current->cmd, ft_strlen(history->current->cmd));
 		ft_strcpy(data->line, history->current->cmd);
 	}
+	else
+		ft_bzero(data->line, ft_strlen(data->line));
 }
-
 
 void
 hist_up(t_readline *data, t_hist *history)
@@ -259,6 +197,8 @@ hist_up(t_readline *data, t_hist *history)
 		ft_bzero(data->line, ft_strlen(data->line));
 		ft_strcpy(data->line, history->current->cmd);
 	}
+	else
+		ft_bzero(data->line, ft_strlen(data->line));
 }
 
 char*
@@ -292,9 +232,8 @@ readline()
 		ft_putchar_fd('\n', 1);
 		if (strncmp(data.line, "exit", 4) == 0)
 			exit(0);
-		if (line_valid(data.line))
-			history_add(&history, data.line);
-		history_show(&history);
+		history_add(&history, data.line);
+		print_hist(&history);
 		ft_bzero(data.line, ft_strlen(data.line));
 		ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS, RESET);
 	}
