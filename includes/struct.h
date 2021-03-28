@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/18 16:05:20 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 15:27:08 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:09:19 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,20 @@
 #  error "include only dumbshell.h"
 # endif
 
+typedef	struct	s_hist
+{
+	struct s_hist	*next;
+	struct s_hist	*prev;
+	struct s_hist	*end;
+	struct s_hist	*current;
+	char			*cmd;
+}				t_hist;
+
 typedef struct	s_readline
 {
 	char		input[5];
 	char		*line;
+	int 		llen;
 }				t_readline;
 
 typedef	struct	s_files

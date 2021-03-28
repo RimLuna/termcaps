@@ -4,23 +4,6 @@
 #include <term.h>
 
 #define DELETE 127
-#define T_UP 65
-#define T_DOWN 66
-
-typedef	struct	s_hist
-{
-	struct s_hist	*next;
-	struct s_hist	*prev;
-	struct s_hist	*end;
-	struct s_hist	*current;
-	char			*cmd;
-}				t_hist;
-
-
-int		ft_isblank(int c)
-{
-	return (c == ' ' || c == '\t' ? 1 : 0);
-}
 
 char *
 ft_strcat(char *s1, const char *s2)
@@ -156,16 +139,6 @@ print_hist(t_hist *head)
 }
 
 void
-history_init(t_hist *history)
-{
-	history->cmd = NULL;
-	history->current = NULL;
-	history->end = NULL;
-	history->next = NULL;
-	history->prev = NULL;
-}
-
-void
 hist_down(t_readline *data, t_hist *history)
 {
 	clear_line();
@@ -202,40 +175,32 @@ hist_up(t_readline *data, t_hist *history)
 }
 
 char*
-readline()
+readline(t_hist *history)
 {
-	t_hist			history;
 	t_readline		data;
 
 	if (!set_state())
 		return (NULL);
-	history_init(&history);
 	ft_bzero(&data.input, 5);
 	data.line = NULL;
-	while (1)
+	while (read(0, &data.input, 4) && data.input[0] != '\n')
 	{
-		while (read(0, &data.input, 4) && data.input[0] != '\n')
-		{
-			// printf("%d %d %d %d", data.input[0], data.input[1], data.input[2], data.input[3]);
-			if (data.input[0] == DELETE)
-				delete(&data);
-			else if (data.input[2] == 65)
-				hist_up(&data, &history);
-			else if (data.input[2] == 66)
-				hist_down(&data, &history);
-			else if (ft_isprint(data.input[0]))
-			{
-				append(&data);
-			}
-			ft_bzero(data.input, 5);
-		}
-		ft_putchar_fd('\n', 1);
-		if (strncmp(data.line, "exit", 4) == 0)
-			exit(0);
-		history_add(&history, data.line);
-		print_hist(&history);
-		ft_bzero(data.line, ft_strlen(data.line));
-		ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS, RESET);
+		// printf("%d %d %d %d", data.input[0], data.input[1], data.input[2], data.input[3]);
+		if (data.input[0] == DELETE)
+			delete(&data);
+		else if (data.input[2] == 65)
+			hist_up(&data, history);
+		else if (data.input[2] == 66)
+			hist_down(&data, history);
+		else if (ft_isprint(data.input[0]))
+			append(&data);
+		ft_bzero(data.input, 5);
 	}
+	ft_putchar_fd('\n', 1);
+	if (strncmp(data.line, "exit", 4) == 0)
+		exit(0);
+	history_add(history, data.line);
+	print_hist(history);
 	restore_state();
+	return (data.line);
 }

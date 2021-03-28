@@ -3,16 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arraji <arraji@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 12:23:09 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/07 16:10:23 by arraji           ###   ########.fr       */
+/*   Updated: 2021/03/28 17:12:50 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	init(t_all *all)
+void
+init_history(t_hist *history)
+{
+	history->cmd = NULL;
+	history->current = NULL;
+	history->end = NULL;
+	history->next = NULL;
+	history->prev = NULL;
+}
+
+void	init(t_all *all, t_hist *history)
 {
 	if (g_env == NULL)
 	{
@@ -25,6 +35,7 @@ void	init(t_all *all)
 	all->parser.bits = 64;
 	ft_end((void **)&(all->parser.line), NULL, 1);
 	all->pipe = NULL;
+	init_history(history);
 }
 
 void	clear(t_all *all)
@@ -58,6 +69,7 @@ void	clear(t_all *all)
 int		main(int argc, char **argv, char **env)
 {
 	t_all	all;
+	t_hist	history;
 
 	(void)argc;
 	(void)argv;
@@ -68,8 +80,8 @@ int		main(int argc, char **argv, char **env)
 	all.parser.line = NULL;
 	while (1)
 	{
-		init(&all);
-		if (get_data(&all) == FALSE || here_we_go(&all) == FALSE || 1)
+		init(&all, &history);
+		if (get_data(&all, &history) == FALSE || here_we_go(&all) == FALSE || 1)
 			clear(&all);
 	}
 }

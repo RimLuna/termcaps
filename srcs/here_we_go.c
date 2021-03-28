@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 13:59:41 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 10:21:43 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:13:43 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,18 +60,12 @@ t_bool			here_we_go(t_all *all)
 	return (TRUE);
 }
 
-t_bool			get_data(t_all *all)
+t_bool			get_data(t_all *all, t_hist *history)
 {
 	(all->exit_status == 0) ? ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS,
 	RESET) : ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_RED, PS, RESET);
-	// if ((all->parser.rt = get_next_line(1, &all->parser.line)) == -1)
-	// 	return (error(E_STANDARD, 1, NULL));
-	// if (all->parser.rt == 0)
-	// {
-	// 	write(1, "exit\n", 6);
-	// 	exit(0);
-	// }
-	all->parser.line = readline();
+	all->parser.line = readline(history);
+	printf("|%s|\n", all->parser.line);
 	if (lexer(all->parser.line, &all->parser) == FALSE ||
 	parser(all->parser.line, all) == FALSE)
 		return (FALSE);
