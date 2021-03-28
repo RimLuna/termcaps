@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 12:23:09 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 17:12:50 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:43:46 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ init_history(t_hist *history)
 	history->prev = NULL;
 }
 
-void	init(t_all *all, t_hist *history)
+void	init(t_all *all)
 {
 	if (g_env == NULL)
 	{
@@ -35,7 +35,6 @@ void	init(t_all *all, t_hist *history)
 	all->parser.bits = 64;
 	ft_end((void **)&(all->parser.line), NULL, 1);
 	all->pipe = NULL;
-	init_history(history);
 }
 
 void	clear(t_all *all)
@@ -78,9 +77,10 @@ int		main(int argc, char **argv, char **env)
 	signal(SIGINT, handler);
 	signal(SIGQUIT, handler);
 	all.parser.line = NULL;
+	init_history(&history);
 	while (1)
 	{
-		init(&all, &history);
+		init(&all);
 		if (get_data(&all, &history) == FALSE || here_we_go(&all) == FALSE || 1)
 			clear(&all);
 	}

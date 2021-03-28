@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/18 16:05:20 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 17:09:19 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 17:43:59 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ typedef struct	s_readline
 {
 	char		input[5];
 	char		*line;
-	int 		llen;
 }				t_readline;
 
 typedef	struct	s_files

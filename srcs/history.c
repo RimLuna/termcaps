@@ -149,8 +149,8 @@ hist_down(t_readline *data, t_hist *history)
 	if (history->current && history->current->cmd)
 	{
 		ft_bzero(data->line, ft_strlen(data->line));
-		write(1, history->current->cmd, ft_strlen(history->current->cmd));
-		ft_strcpy(data->line, history->current->cmd);
+		free(data->line);
+		data->line = ft_strdup(history->current->cmd);
 	}
 	else
 		ft_bzero(data->line, ft_strlen(data->line));
@@ -167,8 +167,8 @@ hist_up(t_readline *data, t_hist *history)
 	if (history->current && history->current->cmd)
 	{
 		write(1, history->current->cmd, ft_strlen(history->current->cmd));
-		ft_bzero(data->line, ft_strlen(data->line));
-		ft_strcpy(data->line, history->current->cmd);
+		free(data->line);
+		data->line = ft_strdup(history->current->cmd);
 	}
 	else
 		ft_bzero(data->line, ft_strlen(data->line));
