@@ -99,7 +99,7 @@ append(t_readline *data)
 }
 
 void
-history_add(t_hist *history, char *line)
+hist_add(t_hist *history, char *line)
 {
 	if (!history->cmd)
 	{
@@ -159,9 +159,6 @@ hist_down(t_readline *data, t_hist *history)
 void
 hist_up(t_readline *data, t_hist *history)
 {
-	t_hist *head;
-
-	head = history;
 	clear_line();
 	if (!history->curr || !history->curr->cmd)
 		history->curr = history->end;
@@ -200,9 +197,12 @@ readline(t_hist *history)
 		ft_bzero(data.input, 5);
 	}
 	ft_putchar_fd('\n', 1);
+	if (!data.line)
+		data.line = ft_strdup("");
 	if (strncmp(data.line, "exit", 4) == 0)
 		exit(0);
-	history_add(history, data.line);
+	if (data.line[0] != '\0')
+		hist_add(history, data.line);
 	print_hist(history);
 	restore_state();
 	return (data.line);
