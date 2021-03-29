@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arraji <arraji@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 14:02:21 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 18:21:38 by arraji           ###   ########.fr       */
+/*   Updated: 2021/03/29 13:16:01 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,8 @@
 # define RED_TO_APP		-32
 # define CNULL			-10
 
-char		*readline();
-t_bool	get_data(t_all *all, t_dlist *history);
+int		readline(char **line);
+t_bool	get_data(t_all *all, t_hist *history);
 t_bool	parser(char *line, t_all *all);
 t_bool	lexer(char *line, t_parser *parser);
 t_bool	sets(char *line, int index, t_parser *parser);

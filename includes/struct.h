@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   struct.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arraji <arraji@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/18 16:05:20 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 18:21:30 by arraji           ###   ########.fr       */
+/*   Updated: 2021/03/29 12:36:38 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,14 @@
 #  error "include only dumbshell.h"
 # endif
 
-typedef	struct	s_dlist
+typedef	struct	s_hist
 {
-	struct s_dlist	*next;
-	struct s_dlist	*prev;
+	struct s_hist	*next;
+	struct s_hist	*prev;
 	char			*cmd;
 	char			*updated;
 	int				llen;
-}				t_dlist;
+}				t_hist;
 
 typedef struct	s_readline
 {
@@ -81,6 +81,7 @@ typedef	struct	s_all
 	unsigned char	exit_status;
 	t_parser		parser;
 	t_pipeline		*pipe;
+	t_hist			*hist;			
 	char			*pwd;
 }				t_all;
 

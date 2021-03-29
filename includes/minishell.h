@@ -6,7 +6,7 @@
 /*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 13:25:48 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 10:55:37 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/29 12:43:30 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 # include <sys/wait.h>
 # include <signal.h>
 # include <sys/types.h>
+# include <termcap.h>
+# include <termios.h>
 # include "libft.h"
 # include "struct.h"
 # include "parser.h"

@@ -1,15 +1,9 @@
 #include "minishell.h"
-#include <termcap.h>
-#include <termios.h>
-#include <term.h>
 
-#define DELETE 127
 
-t_dlist		*hist = NULL;
-
-t_dlist		*dlist_push_back(t_dlist **lst, t_dlist *new)
+t_hist		*dlist_push_back(t_hist **lst, t_hist *new)
 {
-	t_dlist	*save;
+	t_hist	*save;
 
 	if (!new || !lst)
 		return (NULL);
@@ -30,10 +24,10 @@ t_dlist		*dlist_push_back(t_dlist **lst, t_dlist *new)
 	return (new);
 }
 
-void	dlist_clear(t_dlist **lst)
+void	dlist_clear(t_hist **lst)
 {
-	t_dlist	*save;
-	t_dlist	*temp;
+	t_hist	*save;
+	t_hist	*temp;
 
 	save = (*lst)->next;
 	while (save)
@@ -79,7 +73,7 @@ restore_state(void)
 
 
 void
-append(char input)
+append(char input, t_hist *hist)
 {
 	char *tmp;
 	int len;
@@ -102,30 +96,35 @@ void	del(int size)
 		write(1, "\b \b", 3);
 }
 
-void	go_up()
+void	go_up(t_hist **hist)
 {
 	int size;
 
-	if (hist->prev)
+	if ((*hist)->prev)
 	{
-		del(ft_strlen(hist->updated));
-		hist = hist->prev;
-		write(1, hist->updated, ft_strlen(hist->updated));
+		del(ft_strlen((*hist)->updated));
+		*hist = (*hist)->prev;
+		write(1, (*hist)->updated, ft_strlen((*hist)->updated));
 	}
 }
 
-void	go_down()
+void	go_down(t_hist **hist)
 {
-	if (hist->next)
+	if ((*hist)->next)
 	{
-		del(ft_strlen(hist->updated));
-		hist = hist->next;
-		write(1, hist->updated, ft_strlen(hist->updated));
+		del(ft_strlen((*hist)->updated));
+		*hist = (*hist)->next;
+		write(1, (*hist)->updated, ft_strlen((*hist)->updated));
 	}
 }
 
-void hist_init(t_dlist *head)
+void	hist_init(t_hist *head, t_hist **end)
 {
+	*end = dlist_push_back(&g_all->hist, (t_hist *)malloc(sizeof(t_hist)));
+	g_all->hist = *end;
+	(*end)->llen = 0;
+	(*end)->cmd = NULL;
+	(*end)->updated = NULL;
 	while (head)
 	{
 		head->updated = ft_strdup(head->cmd);
@@ -133,8 +132,10 @@ void hist_init(t_dlist *head)
 	}
 }
 
-void	hist_reset(t_dlist *head)
+void	hist_reset(t_hist *head)
 {
+	write(1 , "\n", 1);
+	restore_state();
 	while (head)
 	{
 		free(head->updated);
@@ -142,42 +143,38 @@ void	hist_reset(t_dlist *head)
 		head = head->next;
 	}
 }
-char*
-readline(t_dlist *history)
+
+int
+readline(char **line)
 {
 	char	input[5];
-	t_dlist	*end;
-	static	t_dlist *head = NULL;
+	t_hist	*end;
+	static	t_hist *head = NULL;
 
-	if (!set_state())
-		return (NULL);
-	ft_bzero(input, 5);
-	end = dlist_push_back(&hist, (t_dlist *)malloc(sizeof(t_dlist)));
+	hist_init(head, &end);
 	if (head == NULL)
 		head = end;
-	hist = end;
-	hist->llen = 0;
-	hist->cmd = NULL;
-	hist->updated = NULL;
-	hist_init(head);
-	while (read(0, &input, 4) && input[0] != '\n')
+	ft_bzero(input, 5);
+	while ((g_all->parser.rt = read(0, &input, 4)) && input[0] != '\n')
 	{
-		if (input[0] == DELETE && hist->llen > 0)
+		if (g_all->parser.rt == 0 && g_all->hist->llen == 0)
+			return (0);
+		if (input[0] == 127 && g_all->hist->llen > 0)
 		{
-			hist->updated[--hist->llen] = '\0';
+			g_all->hist->updated[--g_all->hist->llen] = '\0';
 			write(1, "\b \b", 3);
 		}
 		else if (input[2] == 65)
-			go_up();
+			go_up(&g_all->hist);
+			// exit(0);
 		else if (input[2] == 66)
-			go_down();
+			go_down(&g_all->hist);
 		else if (ft_isprint(input[0]))
-			append(input[0]);
-		ft_bzero(input, 5);
+			append(input[0], g_all->hist);
 	}
-	write(1 , "\n", 1);
-	end->cmd = ft_strdup(hist->updated);
+	ft_bzero(input, 5);
+	end->cmd = ft_strdup(g_all->hist->updated);
+	*line = ft_strdup(g_all->hist->updated);
 	hist_reset(head);
-	restore_state();
-	return (NULL);
+	return (1);
 }
