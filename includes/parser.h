@@ -39,7 +39,6 @@
 # define RED_TO_APP		-32
 # define CNULL			-10
 
-int		readline(char **line);
 t_bool	get_data(t_all *all, t_hist *history);
 t_bool	parser(char *line, t_all *all);
 t_bool	lexer(char *line, t_parser *parser);

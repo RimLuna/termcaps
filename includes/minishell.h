@@ -35,6 +35,7 @@
 # include "env_handle.h"
 # include "need.h"
 # include "signals_handler.h"
+# include "history.h"
 
 t_all	*g_all;
 char	**g_environ;

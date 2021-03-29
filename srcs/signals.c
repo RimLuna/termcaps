@@ -19,6 +19,7 @@ void	handler(int sig)
 		ft_fprintf(1, "\n" BOLD PRINT_RED PS RESET);
 		g_all->exit_status = 128 + sig;
 		get_next_line(-5, NULL);
+		readline(NULL, &(g_all->hist));
 	}
 	if (sig == SIGQUIT)
 	{

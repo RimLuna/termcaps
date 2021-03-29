@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static	int 	set_state(void)
+static	int		set_state(void)
 {
 	struct termios		term;
 
@@ -78,7 +78,7 @@ t_bool			get_data(t_all *all, t_hist *history)
 {
 	(all->exit_status == 0) ? ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS,
 	RESET) : ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_RED, PS, RESET);
-	all->parser.rt = (set_state()) ? readline(&all->parser.line)
+	all->parser.rt = (set_state()) ? readline(&all->parser.line, &(all->hist))
 	: get_next_line(1, &all->parser.line);
 	if (all->parser.rt == -1)
 		return (error(E_STANDARD, 1, NULL));
@@ -87,7 +87,6 @@ t_bool			get_data(t_all *all, t_hist *history)
 		write(1, "exit\n", 6);
 		exit(0);
 	}
-	// return (FALSE);
 	if (lexer(all->parser.line, &all->parser) == FALSE ||
 	parser(all->parser.line, all) == FALSE)
 		return (FALSE);

@@ -1,82 +1,9 @@
 #include "minishell.h"
-
-
-t_hist		*dlist_push_back(t_hist **lst, t_hist *new)
+#define vibe write(1, "v", 1);
+void	append(char input, t_hlist *hist)
 {
-	t_hist	*save;
-
-	if (!new || !lst)
-		return (NULL);
-	new->next = NULL;
-	if (!*lst)
-	{
-		new->prev = NULL;
-		*lst = new;
-	}
-	else
-	{
-		save = *lst;
-		while (save->next)
-			save = save->next;
-		save->next = new;
-		new->prev = save;
-	}
-	return (new);
-}
-
-void	dlist_clear(t_hist **lst)
-{
-	t_hist	*save;
-	t_hist	*temp;
-
-	save = (*lst)->next;
-	while (save)
-	{
-		temp = save;
-		save = save->next;
-		free(temp);
-	}
-	save = (*lst);
-	while (save)
-	{
-		temp = save;
-		save = save->prev;
-		free(temp);
-	}
-	*lst = NULL;
-}
-
-int
-set_state(void)
-{
-	struct termios		term;
-
-	if (tgetent(0, get_var_value("TERM")) < 1)
-		return (0);
-	tcgetattr(0, &term);
-	term.c_lflag &= ~(ICANON | ECHO);
-	term.c_cc[VMIN] = 1;
-	term.c_cc[VTIME] = 0;
-	tcsetattr(0, TCSANOW, &term);
-	return (1);
-}
-
-void
-restore_state(void)
-{
-	struct termios		restore;
-
-	tcgetattr(0, &restore);
-	restore.c_lflag |= (ICANON | ECHO);
-	tcsetattr(0, TCSANOW, &restore);
-}
-
-
-void
-append(char input, t_hist *hist)
-{
-	char *tmp;
-	int len;
+	char	*tmp;
+	int		len;
 
 	len = ft_strlen(hist->updated);
 	tmp = hist->updated;
@@ -90,41 +17,33 @@ append(char input, t_hist *hist)
 	free(tmp);
 }
 
-void	del(int size)
+void	handle_input(t_hist *hist, char input[5])
 {
-	while (size-- > 0)
-		write(1, "\b \b", 3);
-}
-
-void	go_up(t_hist **hist)
-{
-	int size;
-
-	if ((*hist)->prev)
+	if (input[2] == 65 && hist->list->prev)
 	{
-		del(ft_strlen((*hist)->updated));
-		*hist = (*hist)->prev;
-		write(1, (*hist)->updated, ft_strlen((*hist)->updated));
+		del(hist->list->llen);
+		hist->list = hist->list->prev;
+		write(1, hist->list->updated, hist->list->llen);
 	}
-}
-
-void	go_down(t_hist **hist)
-{
-	if ((*hist)->next)
+	else if (input[2] == 66 && hist->list->next)
 	{
-		del(ft_strlen((*hist)->updated));
-		*hist = (*hist)->next;
-		write(1, (*hist)->updated, ft_strlen((*hist)->updated));
+		del(hist->list->llen);
+		hist->list = hist->list->next;
+		write(1, hist->list->updated, hist->list->llen);
 	}
+	else if (ft_isprint(input[0]))
+		append(input[0], hist->list);
 }
 
-void	hist_init(t_hist *head, t_hist **end)
+void	hist_init(t_hlist *head, t_hlist **end)
 {
-	*end = dlist_push_back(&g_all->hist, (t_hist *)malloc(sizeof(t_hist)));
-	g_all->hist = *end;
+	*end = dlist_push_back(&g_all->hist.list, (t_hlist *)malloc(sizeof(t_hlist)));
+	g_all->hist.list = *end;
 	(*end)->llen = 0;
 	(*end)->cmd = NULL;
 	(*end)->updated = NULL;
+	if (g_all->hist.head == NULL)
+		g_all->hist.head = g_all->hist.end;
 	while (head)
 	{
 		head->updated = ft_strdup(head->cmd);
@@ -132,49 +51,64 @@ void	hist_init(t_hist *head, t_hist **end)
 	}
 }
 
-void	hist_reset(t_hist *head)
+void	hist_reset(t_hlist *head, int all)
 {
-	write(1 , "\n", 1);
-	restore_state();
+	struct termios	restore;
+
 	while (head)
 	{
 		free(head->updated);
 		head->updated = NULL;
+		head->llen = ft_strlen(head->cmd);
 		head = head->next;
+	}
+	if (all)
+	{
+		write(1, "\n", 1);
+		tcgetattr(0, &restore);
+		restore.c_lflag |= (ICANON | ECHO);
+		tcsetattr(0, TCSANOW, &restore);
 	}
 }
 
-int
-readline(char **line)
+int		readline(char **line, t_hist *hist)
 {
-	char	input[5];
-	t_hist	*end;
-	static	t_hist *head = NULL;
+	char			input[5];
+	int i = 0;
 
-	hist_init(head, &end);
-	if (head == NULL)
-		head = end;
+	if (line == NULL)
+	{
+		hist->list = hist->end->prev;
+		if (hist->list)
+			hist->list->next = NULL;
+		ft_end((void **)hist->end->cmd, (void **)hist->end, 0);
+		hist->end = hist->list;
+		if (!hist->list)
+			hist->head = NULL;
+		hist_reset(hist->head, 0);
+		hist_init(hist->head, &(hist->end));
+		return (1);
+
+	}
+	hist_init(hist->head, &(hist->end));
 	ft_bzero(input, 5);
 	while ((g_all->parser.rt = read(0, &input, 4)) && input[0] != '\n')
 	{
-		if (g_all->parser.rt == 0 && g_all->hist->llen == 0)
+		if (g_all->parser.rt == 0 && hist->list->llen == 0)
 			return (0);
-		if (input[0] == 127 && g_all->hist->llen > 0)
+		else if (input[0] == 127 && hist->list->llen > 0)
 		{
-			g_all->hist->updated[--g_all->hist->llen] = '\0';
+			hist->list->updated[--hist->list->llen] = '\0';
 			write(1, "\b \b", 3);
 		}
-		else if (input[2] == 65)
-			go_up(&g_all->hist);
-			// exit(0);
-		else if (input[2] == 66)
-			go_down(&g_all->hist);
-		else if (ft_isprint(input[0]))
-			append(input[0], g_all->hist);
+		else
+			handle_input(&g_all->hist, input);
+		ft_bzero(input, 5);
 	}
-	ft_bzero(input, 5);
-	end->cmd = ft_strdup(g_all->hist->updated);
-	*line = ft_strdup(g_all->hist->updated);
-	hist_reset(head);
+	hist->end->cmd = ft_strdup(hist->list->updated);
+	hist->end->llen = hist->list->llen;
+	*line = hist->list->updated ?
+	ft_strdup(hist->list->updated) : ft_strdup("");
+	hist_reset(hist->head, 1);
 	return (1);
 }

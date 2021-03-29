@@ -16,21 +16,21 @@
 #  error "include only dumbshell.h"
 # endif
 
-typedef	struct	s_hist
+typedef	struct	s_hlist
 {
-	struct s_hist	*next;
-	struct s_hist	*prev;
+	struct s_hlist	*next;
+	struct s_hlist	*prev;
 	char			*cmd;
 	char			*updated;
 	int				llen;
-}				t_hist;
+}				t_hlist;
 
-typedef struct	s_readline
+typedef	struct	s_hist
 {
-	char		input[5];
-	char		*line;
-	int 		llen;
-}				t_readline;
+	t_hlist		*list;
+	t_hlist		*head;
+	t_hlist		*end;
+}				t_hist;
 
 typedef	struct	s_files
 {
@@ -81,7 +81,7 @@ typedef	struct	s_all
 	unsigned char	exit_status;
 	t_parser		parser;
 	t_pipeline		*pipe;
-	t_hist			*hist;			
+	t_hist			hist;
 	char			*pwd;
 }				t_all;
 
