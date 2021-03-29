@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   here_we_go.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: arraji <arraji@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/01 13:59:41 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/28 17:13:43 by rbougssi         ###   ########.fr       */
+/*   Updated: 2021/03/28 18:25:44 by arraji           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,12 @@ t_bool			here_we_go(t_all *all)
 	return (TRUE);
 }
 
-t_bool			get_data(t_all *all, t_hist *history)
+t_bool			get_data(t_all *all, t_dlist *history)
 {
 	(all->exit_status == 0) ? ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS,
 	RESET) : ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_RED, PS, RESET);
 	all->parser.line = readline(history);
+	return (FALSE);
 	printf("|%s|\n", all->parser.line);
 	if (lexer(all->parser.line, &all->parser) == FALSE ||
 	parser(all->parser.line, all) == FALSE)

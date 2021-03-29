@@ -5,26 +5,51 @@
 
 #define DELETE 127
 
-char *
-ft_strcat(char *s1, const char *s2)
-{
-	int i;
-	int j;
+t_dlist		*hist = NULL;
 
-	i = 0;
-	while (s1[i] != '\0')
+t_dlist		*dlist_push_back(t_dlist **lst, t_dlist *new)
+{
+	t_dlist	*save;
+
+	if (!new || !lst)
+		return (NULL);
+	new->next = NULL;
+	if (!*lst)
 	{
-		i++;
+		new->prev = NULL;
+		*lst = new;
 	}
-	j = 0;
-	while (s2[j] != '\0')
+	else
 	{
-		s1[i] = s2[j];
-		i++;
-		j++;
+		save = *lst;
+		while (save->next)
+			save = save->next;
+		save->next = new;
+		new->prev = save;
 	}
-	s1[i] = '\0';
-	return (s1);
+	return (new);
+}
+
+void	dlist_clear(t_dlist **lst)
+{
+	t_dlist	*save;
+	t_dlist	*temp;
+
+	save = (*lst)->next;
+	while (save)
+	{
+		temp = save;
+		save = save->next;
+		free(temp);
+	}
+	save = (*lst);
+	while (save)
+	{
+		temp = save;
+		save = save->prev;
+		free(temp);
+	}
+	*lst = NULL;
 }
 
 int
@@ -52,155 +77,107 @@ restore_state(void)
 	tcsetattr(0, TCSANOW, &restore);
 }
 
-int
-putchr(int c)
-{
-	write(1, &c, 1);
-	return (0);
-}
 
 void
-clear_line()
-{
-	tputs(tgetstr("cr", NULL), 1, &putchr);
-	tputs(tgetstr("cd", NULL), 1, &putchr);
-	ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS, RESET);
-}
-
-void
-delete(t_readline *data)
-{
-	int len;
-	char *tmp;
-
-	len = ft_strlen(data->line);
-	if (len == 0)
-		return ;
-	clear_line();
-	data->line[len - 1] = '\0';
-	ft_putstr_fd(data->line, 1);
-}
-
-void
-append(t_readline *data)
+append(char input)
 {
 	char *tmp;
 	int len;
 
-	len = ft_strlen(data->line);
-	tmp = data->line;
-	data->line = (char *)malloc((len + 1) * sizeof(char));
-	ft_bzero(data->line, len + 1);
-	strncpy(data->line, tmp, len);
-	data->line[len] = data->input[0];
-	data->line[len + 1] = '\0';
-	write(1, data->input, 1);
-	// free(tmp);
+	len = ft_strlen(hist->updated);
+	tmp = hist->updated;
+	hist->updated = (char *)malloc((len + 1) * sizeof(char));
+	ft_bzero(hist->updated, len + 1);
+	strncpy(hist->updated, tmp, len);
+	hist->updated[len] = input;
+	hist->updated[len + 1] = '\0';
+	write(1, &input, 1);
+	hist->llen++;
+	free(tmp);
 }
 
-void
-history_add(t_hist *history, char *line)
+void	del(int size)
 {
-	if (!history->cmd)
-	{
-		history->cmd = ft_strdup(line);
-		return ;
-	}
-	else if (!history->next)
-	{
-		history->next = (t_hist*)malloc(sizeof(t_hist));
-		history->next->next = NULL;
-		history->next->prev = history;
-		history->end = history->next;
-		history->next->cmd = ft_strdup(line);
-		return ;
-	}
-	history->end->next = (t_hist*)malloc(sizeof(t_hist));
-	history->end->next->next = NULL;
-	history->end->next->prev = history->end;
-	history->end->next->cmd = ft_strdup(line);
-	history->end = history->end->next;
+	while (size-- > 0)
+		write(1, "\b \b", 3);
 }
 
-void
-print_hist(t_hist *head)
+void	go_up()
 {
-	t_hist *tmp;
-	if (!head->cmd)
-		return ;
-	tmp = head;
-	printf("\n\nHIST:\n\n");
-	while (tmp)
+	int size;
+
+	if (hist->prev)
 	{
-		printf("%s\n", tmp->cmd);
-		tmp = tmp->next;
+		del(ft_strlen(hist->updated));
+		hist = hist->prev;
+		write(1, hist->updated, ft_strlen(hist->updated));
 	}
-	ft_putstr_fd("\n", 1);
 }
 
-void
-hist_down(t_readline *data, t_hist *history)
+void	go_down()
 {
-	clear_line();
-	if (!history->current || !history->current->cmd)
-		history->current = history;
-	else if (history->current->cmd)
-		history->current = history->current->next;
-	if (history->current && history->current->cmd)
+	if (hist->next)
 	{
-		ft_bzero(data->line, ft_strlen(data->line));
-		write(1, history->current->cmd, ft_strlen(history->current->cmd));
-		ft_strcpy(data->line, history->current->cmd);
+		del(ft_strlen(hist->updated));
+		hist = hist->next;
+		write(1, hist->updated, ft_strlen(hist->updated));
 	}
-	else
-		ft_bzero(data->line, ft_strlen(data->line));
 }
 
-void
-hist_up(t_readline *data, t_hist *history)
+void hist_init(t_dlist *head)
 {
-	clear_line();
-	if (!history->current || !history->current->cmd)
-		history->current = history->end;
-	else if (history->current->cmd)
-		history->current = history->current->prev;
-	if (history->current && history->current->cmd)
+	while (head)
 	{
-		write(1, history->current->cmd, ft_strlen(history->current->cmd));
-		ft_bzero(data->line, ft_strlen(data->line));
-		ft_strcpy(data->line, history->current->cmd);
+		head->updated = ft_strdup(head->cmd);
+		head = head->next;
 	}
-	else
-		ft_bzero(data->line, ft_strlen(data->line));
 }
 
+void	hist_reset(t_dlist *head)
+{
+	while (head)
+	{
+		free(head->updated);
+		head->updated = NULL;
+		head = head->next;
+	}
+}
 char*
-readline(t_hist *history)
+readline(t_dlist *history)
 {
-	t_readline		data;
+	char	input[5];
+	t_dlist	*end;
+	static	t_dlist *head = NULL;
 
 	if (!set_state())
 		return (NULL);
-	ft_bzero(&data.input, 5);
-	data.line = NULL;
-	while (read(0, &data.input, 4) && data.input[0] != '\n')
+	ft_bzero(input, 5);
+	end = dlist_push_back(&hist, (t_dlist *)malloc(sizeof(t_dlist)));
+	if (head == NULL)
+		head = end;
+	hist = end;
+	hist->llen = 0;
+	hist->cmd = NULL;
+	hist->updated = NULL;
+	hist_init(head);
+	while (read(0, &input, 4) && input[0] != '\n')
 	{
-		// printf("%d %d %d %d", data.input[0], data.input[1], data.input[2], data.input[3]);
-		if (data.input[0] == DELETE)
-			delete(&data);
-		else if (data.input[2] == 65)
-			hist_up(&data, history);
-		else if (data.input[2] == 66)
-			hist_down(&data, history);
-		else if (ft_isprint(data.input[0]))
-			append(&data);
-		ft_bzero(data.input, 5);
+		if (input[0] == DELETE && hist->llen > 0)
+		{
+			hist->updated[--hist->llen] = '\0';
+			write(1, "\b \b", 3);
+		}
+		else if (input[2] == 65)
+			go_up();
+		else if (input[2] == 66)
+			go_down();
+		else if (ft_isprint(input[0]))
+			append(input[0]);
+		ft_bzero(input, 5);
 	}
-	ft_putchar_fd('\n', 1);
-	if (strncmp(data.line, "exit", 4) == 0)
-		exit(0);
-	history_add(history, data.line);
-	print_hist(history);
+	write(1 , "\n", 1);
+	end->cmd = ft_strdup(hist->updated);
+	hist_reset(head);
 	restore_state();
-	return (data.line);
+	return (NULL);
 }
