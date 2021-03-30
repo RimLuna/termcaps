@@ -12,16 +12,6 @@
 
 #include "minishell.h"
 
-// void
-// init_history(t_hist *history)
-// {
-// 	history->cmd = NULL;
-// 	history->current = NULL;
-// 	history->end = NULL;
-// 	history->next = NULL;
-// 	history->prev = NULL;
-// }
-
 void	init(t_all *all)
 {
 	if (g_env == NULL)
@@ -35,7 +25,6 @@ void	init(t_all *all)
 	all->parser.bits = 64;
 	ft_end((void **)&(all->parser.line), NULL, 1);
 	all->pipe = NULL;
-	// init_history(history);
 }
 
 void	clear(t_all *all)
