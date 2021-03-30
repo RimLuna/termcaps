@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arraji <arraji@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/30 06:13:12 by arraji            #+#    #+#             */
-/*   Updated: 2021/03/07 15:56:42 by arraji           ###   ########.fr       */
+/*   Updated: 2021/03/30 14:27:29 by rbougssi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,11 +152,10 @@ static	t_bool	b_exit(t_command *cmd)
 	write(2, "exit\n", 5);
 	cmd->argv[1] == NULL ? exit(0) : 1;
 	index = (cmd->argv[1][0] == '-') || (cmd->argv[1][0] == '+') ? 1 : 0;
+	if (!ft_isdigit(cmd->argv[1][0]))
+		exit(error(E_EXIT_ARG, 255, cmd->argv[1]));
 	if (ft_tablen(cmd->argv) > 2)
 		return (error(E_ARGS, 1, cmd->cmd_name));
-	while (cmd->argv[1] && cmd->argv[1][index])
-		if (!ft_isdigit(cmd->argv[1][index++]))
-			exit(error(E_EXIT_ARG, 255, cmd->argv[1]));
 	index = ft_atol(cmd->argv[1]);
 	if (cmd->argv[1] && ((index < 0 && cmd->argv[1][0] != '-')
 	|| (index >= 0 && cmd->argv[1][0] == '-')))
