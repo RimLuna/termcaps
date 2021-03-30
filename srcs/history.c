@@ -19,7 +19,10 @@ void	append(char input, t_hlist *hist)
 
 void	handle_input(t_hist *hist, char input[5])
 {
-	if (input[2] == 65 && hist->list->prev)
+	if (input[0] == 127 && hist->list->llen > 0
+	&& write(1, "\b \b", 3))
+		hist->list->updated[--hist->list->llen] = '\0';
+	else if (input[2] == 65 && hist->list->prev)
 	{
 		del(hist->list->llen);
 		hist->list = hist->list->prev;
@@ -37,7 +40,8 @@ void	handle_input(t_hist *hist, char input[5])
 
 void	hist_init(t_hlist *head, t_hlist **end)
 {
-	*end = dlist_push_back(&g_all->hist.list, (t_hlist *)malloc(sizeof(t_hlist)));
+	*end =
+	dlist_push_back(&g_all->hist.list, (t_hlist *)malloc(sizeof(t_hlist)));
 	g_all->hist.list = *end;
 	(*end)->llen = 0;
 	(*end)->cmd = NULL;
@@ -71,44 +75,43 @@ void	hist_reset(t_hlist *head, int all)
 	}
 }
 
+int		fail(t_hist *hist, int all)
+{
+	hist->list = hist->end->prev;
+	if (hist->list)
+		hist->list->next = NULL;
+	ft_end((void **)&(hist->end->cmd), (void **)&(hist->end), 0);
+	hist->end = hist->list;
+	hist_reset(hist->head, 0);
+	if (!hist->list)
+		hist->head = NULL;
+	if (all)
+		hist_init(hist->head, &(hist->end));
+	else
+		write(1, "\n", 1);
+	return (1);
+}
+
 int		readline(char **line, t_hist *hist)
 {
 	char			input[5];
-	int i = 0;
 
-	if (line == NULL)
-	{
-		hist->list = hist->end->prev;
-		if (hist->list)
-			hist->list->next = NULL;
-		ft_end((void **)hist->end->cmd, (void **)hist->end, 0);
-		hist->end = hist->list;
-		if (!hist->list)
-			hist->head = NULL;
-		hist_reset(hist->head, 0);
-		hist_init(hist->head, &(hist->end));
-		return (1);
-
-	}
-	hist_init(hist->head, &(hist->end));
 	ft_bzero(input, 5);
-	while ((g_all->parser.rt = read(0, &input, 4)) && input[0] != '\n')
+	if (line == NULL)
+		return (fail(hist, 1));
+	hist_init(hist->head, &(hist->end));
+	while ((g_all->parser.rt = read(0, &input, 4)) >= 0 && input[0] != '\n')
 	{
-		if (g_all->parser.rt == 0 && hist->list->llen == 0)
+		if (input[0] == 4 && hist->list->llen == 0)
 			return (0);
-		else if (input[0] == 127 && hist->list->llen > 0)
-		{
-			hist->list->updated[--hist->list->llen] = '\0';
-			write(1, "\b \b", 3);
-		}
 		else
 			handle_input(&g_all->hist, input);
 		ft_bzero(input, 5);
 	}
+	*line = hist->list->updated ? ft_strdup(hist->list->updated) : ft_strdup("");
+	if (ft_strlen(hist->list->updated) == 0)
+		return (fail(hist, 0));
 	hist->end->cmd = ft_strdup(hist->list->updated);
-	hist->end->llen = hist->list->llen;
-	*line = hist->list->updated ?
-	ft_strdup(hist->list->updated) : ft_strdup("");
 	hist_reset(hist->head, 1);
 	return (1);
 }
