@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   history.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rbougssi <rbougssi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/30 13:33:56 by rbougssi          #+#    #+#             */
+/*   Updated: 2021/03/30 15:00:31 by rbougssi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
-#define vibe write(1, "v", 1);
+
 void	append(char input, t_hlist *hist)
 {
 	char	*tmp;
@@ -38,43 +50,6 @@ void	handle_input(t_hist *hist, char input[5])
 		append(input[0], hist->list);
 }
 
-void	hist_init(t_hlist *head, t_hlist **end)
-{
-	*end =
-	dlist_push_back(&g_all->hist.list, (t_hlist *)malloc(sizeof(t_hlist)));
-	g_all->hist.list = *end;
-	(*end)->llen = 0;
-	(*end)->cmd = NULL;
-	(*end)->updated = NULL;
-	if (g_all->hist.head == NULL)
-		g_all->hist.head = g_all->hist.end;
-	while (head)
-	{
-		head->updated = ft_strdup(head->cmd);
-		head = head->next;
-	}
-}
-
-void	hist_reset(t_hlist *head, int all)
-{
-	struct termios	restore;
-
-	while (head)
-	{
-		free(head->updated);
-		head->updated = NULL;
-		head->llen = ft_strlen(head->cmd);
-		head = head->next;
-	}
-	if (all)
-	{
-		write(1, "\n", 1);
-		tcgetattr(0, &restore);
-		restore.c_lflag |= (ICANON | ECHO);
-		tcsetattr(0, TCSANOW, &restore);
-	}
-}
-
 int		fail(t_hist *hist, int all)
 {
 	hist->list = hist->end->prev;
@@ -108,7 +83,8 @@ int		readline(char **line, t_hist *hist)
 			handle_input(&g_all->hist, input);
 		ft_bzero(input, 5);
 	}
-	*line = hist->list->updated ? ft_strdup(hist->list->updated) : ft_strdup("");
+	*line = hist->list->updated
+	? ft_strdup(hist->list->updated) : ft_strdup("");
 	if (ft_strlen(hist->list->updated) == 0)
 		return (fail(hist, 0));
 	hist->end->cmd = ft_strdup(hist->list->updated);
