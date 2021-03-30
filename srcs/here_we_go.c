@@ -16,8 +16,8 @@ static	int		set_state(void)
 {
 	struct termios		term;
 
-	if (tgetent(0, get_var_value("TERM")) < 1)
-		return (0);
+	if (tgetent(0, NULL) < 1)
+		exit(error(E_NOTERM, 1, NULL));
 	tcgetattr(0, &term);
 	term.c_lflag &= ~(ICANON | ECHO);
 	term.c_cc[VMIN] = 1;
@@ -76,10 +76,10 @@ t_bool			here_we_go(t_all *all)
 
 t_bool			get_data(t_all *all, t_hist *history)
 {
+	set_state();
 	(all->exit_status == 0) ? ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_GR, PS,
 	RESET) : ft_fprintf(1, "%s%s%s%s", BOLD, PRINT_RED, PS, RESET);
-	all->parser.rt = (set_state()) ? readline(&all->parser.line, &(all->hist))
-	: get_next_line(1, &all->parser.line);
+	all->parser.rt = readline(&all->parser.line, &(all->hist));
 	if (all->parser.rt == -1)
 		return (error(E_STANDARD, 1, NULL));
 	else if (all->parser.rt == 0)

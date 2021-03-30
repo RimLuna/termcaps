@@ -53,6 +53,7 @@ int		error(int err, int exit_value, char *need)
 	err == E_WPATH ? ft_fprintf(2, "no such file or directory: %s\n", need) : 1;
 	err == E_ISDIR ? ft_fprintf(2, "%s: Is a directory\n", need) : 1;
 	err == E_ARGS ? ft_fprintf(1, "%s: too many arguments\n", need) : 1;
+	err == E_NOTERM ? ft_fprintf(2, "term not set\n", NULL) : 1;
 	err == E_CD ?
 	ft_fprintf(1, "cd: %s: no such file or directory\n", need) : 1;
 	err == E_NOT_VAL ?
