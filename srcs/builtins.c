@@ -152,7 +152,7 @@ static	t_bool	b_exit(t_command *cmd)
 	write(2, "exit\n", 5);
 	cmd->argv[1] == NULL ? exit(0) : 1;
 	index = (cmd->argv[1][0] == '-') || (cmd->argv[1][0] == '+') ? 1 : 0;
-	if (!ft_isdigit(cmd->argv[1][0]))
+	if (!ft_isdigit(cmd->argv[1][index]))
 		exit(error(E_EXIT_ARG, 255, cmd->argv[1]));
 	if (ft_tablen(cmd->argv) > 2)
 		return (error(E_ARGS, 1, cmd->cmd_name));
